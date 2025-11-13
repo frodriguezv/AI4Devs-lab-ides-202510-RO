@@ -33,9 +33,22 @@ The frontend is a React application, and its main files are located in the `src`
 
 ### Backend
 
-El backend es una aplicación Express escrita en TypeScript.
-- The `src` directory contains the source code
-- The `prisma` directory contains the Prisma schema.
+The backend is an Express application written in TypeScript with a complete REST API for candidate management.
+- The `src` directory contains the source code organized into:
+  - `controllers/` - Request handlers for API endpoints
+  - `services/` - Business logic layer
+  - `validators/` - Data validation schemas (Zod)
+  - `middleware/` - Error handling, validation, file upload
+  - `routes/` - API route definitions
+  - `config/` - Application and database configuration
+  - `tests/` - Unit and integration tests
+- The `prisma` directory contains the Prisma schema for database ORM
+- Features include:
+  - Full CRUD operations for candidates
+  - Document upload (PDF, DOCX)
+  - Comprehensive data validation
+  - Security features (rate limiting, CORS, input sanitization)
+  - Swagger/OpenAPI documentation
 
 ## First steps
 
@@ -50,33 +63,90 @@ npm install
 cd ../backend
 npm install
 ```
-3. Set up the database (see [Database Setup](#database-setup) section for details)
+3. Configure backend environment variables
+```sh
+cd backend
+# Create .env file from the template
+# See backend/README.md for all required environment variables
+# Minimum required: DATABASE_URL
+```
+4. Set up the database (see [Database Setup](#database-setup) section for details)
 ```bash
 ./setup-database.sh
 ```
-4. Build the backend server
+5. Generate Prisma Client (if not done by setup script)
+```bash
+cd backend
+npm run prisma:generate
+```
+6. Build the backend server
 ```
 cd backend
 npm run build
-````
-5. Run the backend server
+```
+7. Run the backend server
 ```
 cd backend
 npm run dev 
 ```
 
-6. In a new terminal window, build the frontend server:
+The backend API will be available at `http://localhost:3010`
+- API Documentation (Swagger): `http://localhost:3010/api-docs`
+- Health Check: `http://localhost:3010/`
+
+8. In a new terminal window, build the frontend server:
 ```
 cd frontend
 npm run build
 ```
-7. Start the frontend server
+9. Start the frontend server
 ```
 cd frontend
 npm start
 ```
 
 The backend server will be running at http://localhost:3010, and the frontend will be available at http://localhost:3000.
+
+## Backend API
+
+The backend provides a complete REST API for managing candidates. For detailed API documentation, see [backend/README.md](backend/README.md).
+
+### Available Endpoints
+
+- **POST** `/api/candidates` - Create a new candidate
+- **GET** `/api/candidates` - List candidates (with pagination and filters)
+- **GET** `/api/candidates/:id` - Get candidate by ID
+- **PATCH** `/api/candidates/:id` - Update candidate
+- **DELETE** `/api/candidates/:id` - Soft delete candidate
+- **POST** `/api/candidates/:id/documents` - Upload document (PDF, DOCX)
+- **GET** `/api/candidates/:id/documents` - Get candidate documents
+
+### API Documentation
+
+Interactive API documentation is available at `http://localhost:3010/api-docs` when the backend server is running. This provides:
+- Complete endpoint documentation
+- Request/response examples
+- Try-it-out functionality
+- Schema definitions
+
+### Backend Environment Variables
+
+Create a `.env` file in the `backend/` directory with the following variables:
+
+```env
+DATABASE_URL=postgresql://LTIdbUser:D1ymf8wyQEGthFR1E9xhCq@localhost:5432/LTIdb
+PORT=3010
+NODE_ENV=development
+UPLOAD_DIR=./uploads
+MAX_FILE_SIZE=10485760
+CORS_ORIGIN=*
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX=100
+UPLOAD_RATE_LIMIT_WINDOW_MS=3600000
+UPLOAD_RATE_LIMIT_MAX=10
+```
+
+See `backend/README.md` for detailed configuration options.
 
 ## Database Setup
 
@@ -241,9 +311,22 @@ El frontend es una aplicación React y sus archivos principales están ubicados 
 
 ### Backend
 
-El backend es una aplicación Express escrita en TypeScript.
-- El directorio `src` contiene el código fuente
-- El directorio `prisma` contiene el esquema de Prisma.
+El backend es una aplicación Express escrita en TypeScript con una API REST completa para la gestión de candidatos.
+- El directorio `src` contiene el código fuente organizado en:
+  - `controllers/` - Manejadores de solicitudes para endpoints de API
+  - `services/` - Capa de lógica de negocio
+  - `validators/` - Esquemas de validación de datos (Zod)
+  - `middleware/` - Manejo de errores, validación, carga de archivos
+  - `routes/` - Definiciones de rutas de API
+  - `config/` - Configuración de aplicación y base de datos
+  - `tests/` - Pruebas unitarias e integración
+- El directorio `prisma` contiene el esquema de Prisma para ORM de base de datos
+- Características incluyen:
+  - Operaciones CRUD completas para candidatos
+  - Carga de documentos (PDF, DOCX)
+  - Validación exhaustiva de datos
+  - Características de seguridad (limitación de velocidad, CORS, sanitización de entrada)
+  - Documentación Swagger/OpenAPI
 
 ## Primeros Pasos
 
@@ -258,33 +341,90 @@ npm install
 cd ../backend
 npm install
 ```
-3. Configura la base de datos (consulta la sección [Configuración de la Base de Datos](#configuración-de-la-base-de-datos) para más detalles)
+3. Configura las variables de entorno del backend
+```sh
+cd backend
+# Crea el archivo .env desde la plantilla
+# Consulta backend/README.md para todas las variables de entorno requeridas
+# Mínimo requerido: DATABASE_URL
+```
+4. Configura la base de datos (consulta la sección [Configuración de la Base de Datos](#configuración-de-la-base-de-datos) para más detalles)
 ```bash
 ./setup-database.sh
 ```
-4. Construye el servidor backend:
+5. Genera el Cliente de Prisma (si no se hizo con el script de configuración)
+```bash
+cd backend
+npm run prisma:generate
+```
+6. Construye el servidor backend:
 ```
 cd backend
 npm run build
-````
-5. Inicia el servidor backend:
+```
+7. Inicia el servidor backend:
 ```
 cd backend
 npm run dev 
 ```
 
-6. En una nueva ventana de terminal, construye el servidor frontend:
+La API del backend estará disponible en `http://localhost:3010`
+- Documentación de API (Swagger): `http://localhost:3010/api-docs`
+- Verificación de salud: `http://localhost:3010/`
+
+8. En una nueva ventana de terminal, construye el servidor frontend:
 ```
 cd frontend
 npm run build
 ```
-7. Inicia el servidor frontend:
+9. Inicia el servidor frontend:
 ```
 cd frontend
 npm start
 ```
 
 El servidor backend estará corriendo en http://localhost:3010 y el frontend estará disponible en http://localhost:3000.
+
+## API del Backend
+
+El backend proporciona una API REST completa para gestionar candidatos. Para documentación detallada de la API, consulta [backend/README.md](backend/README.md).
+
+### Endpoints Disponibles
+
+- **POST** `/api/candidates` - Crear un nuevo candidato
+- **GET** `/api/candidates` - Listar candidatos (con paginación y filtros)
+- **GET** `/api/candidates/:id` - Obtener candidato por ID
+- **PATCH** `/api/candidates/:id` - Actualizar candidato
+- **DELETE** `/api/candidates/:id` - Eliminar candidato (soft delete)
+- **POST** `/api/candidates/:id/documents` - Subir documento (PDF, DOCX)
+- **GET** `/api/candidates/:id/documents` - Obtener documentos del candidato
+
+### Documentación de la API
+
+La documentación interactiva de la API está disponible en `http://localhost:3010/api-docs` cuando el servidor backend está en ejecución. Esto proporciona:
+- Documentación completa de endpoints
+- Ejemplos de solicitud/respuesta
+- Funcionalidad de prueba
+- Definiciones de esquemas
+
+### Variables de Entorno del Backend
+
+Crea un archivo `.env` en el directorio `backend/` con las siguientes variables:
+
+```env
+DATABASE_URL=postgresql://LTIdbUser:D1ymf8wyQEGthFR1E9xhCq@localhost:5432/LTIdb
+PORT=3010
+NODE_ENV=development
+UPLOAD_DIR=./uploads
+MAX_FILE_SIZE=10485760
+CORS_ORIGIN=*
+RATE_LIMIT_WINDOW_MS=900000
+RATE_LIMIT_MAX=100
+UPLOAD_RATE_LIMIT_WINDOW_MS=3600000
+UPLOAD_RATE_LIMIT_MAX=10
+```
+
+Consulta `backend/README.md` para opciones de configuración detalladas.
 
 ## Configuración de la Base de Datos
 
