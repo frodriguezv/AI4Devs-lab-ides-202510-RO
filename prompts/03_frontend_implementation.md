@@ -190,7 +190,7 @@ Implement real-time validation for:
 
 ### 8. Technical Stack Preferences
 
-Please implement using one of these frameworks (choose based on team preference):
+Please implement using this framework
 
 **Option A - React**
 - React 18+ with hooks
@@ -201,21 +201,6 @@ Please implement using one of these frameworks (choose based on team preference)
 - React Dropzone for file uploads
 - TailwindCSS or Material-UI for styling
 
-**Option B - Vue.js**
-- Vue 3 with Composition API
-- VeeValidate for form validation
-- Axios for API calls
-- Vue Router for navigation
-- Vue-dropzone for file uploads
-- TailwindCSS or Vuetify for styling
-
-**Option C - Angular**
-- Angular 15+
-- Reactive Forms
-- Angular HTTP Client
-- Angular Router
-- ngx-dropzone for file uploads
-- Angular Material for styling
 
 ### 9. Deliverables
 
@@ -465,3 +450,4 @@ The frontend is complete when:
 - Responsive design works on all devices
 - Accessibility standards are met
 - All tests pass successfully
+- Provide the frontend implementation readme file with every single thing you implemented
