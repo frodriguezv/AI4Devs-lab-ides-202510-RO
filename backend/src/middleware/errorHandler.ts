@@ -25,12 +25,18 @@ export class AppError extends Error implements ApiError {
 
 /**
  * Formats Zod validation errors
+ * Returns a Record<string, string[]> where keys are field paths and values are error messages
  */
-function formatZodError(error: ZodError) {
-  return error.errors.map((err) => ({
-    field: err.path.join('.'),
-    message: err.message,
-  }));
+function formatZodError(error: ZodError): Record<string, string[]> {
+  const details: Record<string, string[]> = {};
+  error.errors.forEach((err) => {
+    const field = err.path.join('.');
+    if (!details[field]) {
+      details[field] = [];
+    }
+    details[field].push(err.message);
+  });
+  return details;
 }
 
 /**
@@ -100,6 +106,32 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
     });
   }
 
+  // Handle Prisma client initialization errors (database connection issues)
+  if (err instanceof Prisma.PrismaClientInitializationError) {
+    const errorMessage = config.nodeEnv === 'development' 
+      ? `Database connection error: ${err.message}. Please ensure PostgreSQL is running and DATABASE_URL is correct.`
+      : 'Unable to connect to the database. Please try again later.';
+    
+    return res.status(503).json({
+      success: false,
+      error: {
+        code: 'DATABASE_CONNECTION_ERROR',
+        message: errorMessage,
+      },
+    });
+  }
+
+  // Handle Prisma validation errors
+  if (err instanceof Prisma.PrismaClientValidationError) {
+    return res.status(400).json({
+      success: false,
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: 'Invalid data provided',
+      },
+    });
+  }
+
   // Handle custom AppError
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({
@@ -107,6 +139,25 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
       error: {
         code: err.code,
         message: err.message,
+      },
+    });
+  }
+
+  // Handle connection errors that occur during queries
+  if (err.message && (
+    err.message.includes('Can\'t reach database server') ||
+    err.message.includes('Connection') ||
+    err.message.includes('ECONNREFUSED') ||
+    err.message.includes('P1001') ||
+    err.message.includes('P1017')
+  )) {
+    return res.status(503).json({
+      success: false,
+      error: {
+        code: 'DATABASE_CONNECTION_ERROR',
+        message: config.nodeEnv === 'development'
+          ? `Database connection error: ${err.message}. Please ensure PostgreSQL is running.`
+          : 'Unable to connect to the database. Please try again later.',
       },
     });
   }

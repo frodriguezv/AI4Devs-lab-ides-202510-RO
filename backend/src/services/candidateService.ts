@@ -73,8 +73,45 @@ export async function createCandidate(data: CreateCandidateInput) {
       });
     }
 
-    // Fetch complete candidate with relations
-    return await getCandidateById(candidate.id);
+    // Fetch complete candidate with relations using transaction client
+    const fullCandidate = await tx.candidate.findFirst({
+      where: {
+        id: candidate.id,
+        deleted_at: null,
+      },
+      include: {
+        education: {
+          where: {
+            deleted_at: null,
+          },
+          orderBy: {
+            start_date: 'desc',
+          },
+        },
+        work_experience: {
+          where: {
+            deleted_at: null,
+          },
+          orderBy: {
+            start_date: 'desc',
+          },
+        },
+        documents: {
+          where: {
+            deleted_at: null,
+          },
+          orderBy: {
+            upload_date: 'desc',
+          },
+        },
+      },
+    });
+
+    if (!fullCandidate) {
+      throw new Error('CANDIDATE_NOT_FOUND');
+    }
+
+    return fullCandidate;
   });
 }
 
